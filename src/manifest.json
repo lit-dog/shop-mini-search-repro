@@ -1,0 +1,7 @@
+{
+  "name": "product-search-reproduction",
+  "permissions": [],
+  "scopes": [
+    "product_list:write"
+  ]
+}
