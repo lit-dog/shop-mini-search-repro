@@ -1,39 +1,62 @@
-import {usePopularProducts, ProductCard, List} from '@shopify/shop-minis-react'
+import {
+  usePopularProducts,
+  Product,
+  useProductSearch,
+  List,
+  Button,
+} from "@shopify/shop-minis-react";
+import { useCallback, useEffect, useState } from "react";
+
+type SearchResult = {
+  timestamp: number;
+  products: Product[];
+};
 
 export function App() {
-  const {products, fetchMore} = usePopularProducts()
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const { products, error } = useProductSearch({
+    query: searchQuery,
+    skip: !searchQuery,
+    first: 2,
+  });
 
-  const productRows = products
-    ? Array.from({length: Math.ceil(products.length / 2)}, (_, i) =>
-        products.slice(i * 2, i * 2 + 2)
-      )
-    : []
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+
+  useEffect(() => {
+    if (products) {
+      setSearchResults([...searchResults, { timestamp: Date.now(), products }]);
+    }
+  }, [products]);
+
+  const runSearch = useCallback(() => {
+    setSearchQuery("t-shirt");
+  }, [setSearchQuery]);
+
+  const resetSearch = useCallback(() => {
+    setSearchQuery("");
+    setSearchResults([]);
+  }, [setSearchQuery, setSearchResults]);
 
   return (
     <div className="pt-12 px-4 pb-6">
-      <h1 className="text-2xl font-bold mb-2 text-center">
-        Welcome to Shop Minis!
-      </h1>
-      <p className="text-xs text-blue-600 mb-4 text-center bg-blue-50 py-2 px-4 rounded border border-blue-200">
-        🛠️ Edit <b>src/App.tsx</b> to change this screen and come back to see
-        your edits!
-      </p>
-      <p className="text-base text-gray-600 mb-6 text-center">
-        These are the popular products today
-      </p>
-      <List
-        items={productRows}
-        height={600}
-        showScrollbar={true}
-        fetchMore={fetchMore}
-        renderItem={productRow => (
-          <div className="grid grid-cols-2 gap-4 p-4">
-            {productRow.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        )}
-      />
+      {searchQuery === "" ? (
+        <Button onClick={runSearch}>Run "t-shirt" search</Button>
+      ) : (
+        <Button onClick={resetSearch}>Reset</Button>
+      )}
+      <h2>Results over time:</h2>
+      {error && <p>Error: {error.message}</p>}
+      {searchResults.map((result, index) => (
+        <div
+          key={`result-${index}`}
+          className="border border-gray-200 p-4 mb-4"
+        >
+          <p>Timestamp: {result.timestamp}</p>
+          {result.products.map((product) => (
+            <p key={product.id}>{product.title}</p>
+          ))}
+        </div>
+      ))}
     </div>
-  )
+  );
 }
