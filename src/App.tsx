@@ -1,10 +1,4 @@
-import {
-  usePopularProducts,
-  Product,
-  useProductSearch,
-  List,
-  Button,
-} from "@shopify/shop-minis-react";
+import { Product, useProductSearch, Button } from "@shopify/shop-minis-react";
 import { useCallback, useEffect, useState } from "react";
 
 type SearchResult = {
@@ -52,9 +46,11 @@ export function App() {
           className="border border-gray-200 p-4 mb-4"
         >
           <p>Timestamp: {result.timestamp}</p>
-          {result.products.map((product) => (
-            <p key={product.id}>{product.title}</p>
-          ))}
+          <ol className="list-decimal list-inside">
+            {result.products.map((product) => (
+              <li key={product.id}>{product.title}</li>
+            ))}
+          </ol>
         </div>
       ))}
     </div>
